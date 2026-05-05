@@ -1,0 +1,116 @@
+server:
+  port: 23009
+
+spring:
+  application:
+    name: google-ads-open-connector-server
+  config:
+    import:
+      - optional:nacos:${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}?group=cs
+      - optional:nacos:conn-client-base-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}?group=cs
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:nacos.livepuls.com.cn}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:cs}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:jdDDDnjjee&&LLM123V}
+        group: cs
+        enabled: true
+      config:
+        server-addr: ${NACOS_HOST:nacos.livepuls.com.cn}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:cs}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:jdDDDnjjee&&LLM123V}
+        group: cs
+        file-extension: properties
+        extension-configs:
+
+  profiles:
+    active: ${PROFILES_ACTIVE:dev}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  health:
+    redis:
+      enabled: false
+
+logging:
+  config: classpath:logback-custom.xml
+  level:
+    org:
+      springframework:
+        security: info
+    com:
+      cs:
+        mapper: debug
+
+
+
+# Google Ads 连接器配置
+google-ads:
+  # API 配置
+  api:
+    # 开发者令牌
+    developer-token: ${GOOGLE_ADS_DEVELOPER_TOKEN:}
+    # API 版本
+    api-version: ${GOOGLE_ADS_API_VERSION:v17}
+
+  # OAuth2 配置
+  oauth:
+    # 客户端 ID
+    client-id: ${GOOGLE_ADS_CLIENT_ID:}
+    # 客户端密钥
+    client-secret: ${GOOGLE_ADS_CLIENT_SECRET:}
+    # 刷新令牌
+    refresh-token: ${GOOGLE_ADS_REFRESH_TOKEN:}
+
+  # 客户匹配配置
+  customer-match:
+    # 用户数据规范化
+    normalization:
+      # 是否自动转小写
+      to-lowercase: true
+      # 是否去除空格
+      trim-whitespace: true
+    # 加密配置
+    encryption:
+      # 加密算法（支持: SHA256, SHA512）
+      algorithm: SHA256
+
+  # 调度任务配置
+  scheduled:
+    # 是否启用调度任务
+    enabled: true
+
+    # 客户匹配数据同步配置
+    customer-match-sync:
+      enabled: true
+      # Cron表达式：每6小时执行一次
+      cron: "0 0 */6 * * ?"
+      # 初始延迟：60秒
+      initial-delay: 60
+
+  # 数据同步配置
+  sync:
+    # 每次同步的批次大小（记录数）
+    batch-size: 10000
+    # 同步超时时间（秒）
+    sync-timeout: 300
+    # 失败重试次数
+    retry-count: 3
+    # 失败重试间隔（秒）
+    retry-interval: 10
